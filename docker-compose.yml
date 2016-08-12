@@ -1,30 +1,45 @@
-rabbit1:
-    image: rabbitcluster
-    hostname: rabbit1
-    ports:
-        - "5681:5672"
-        - "15681:15672"
-rabbit2:
-    image: rabbitcluster
-    hostname: rabbit2
-    links:
-        - rabbit1
-    environment:
-        - CLUSTERED=true
-        - CLUSTER_WITH=rabbit1
-        - RAM_NODE=true
-    ports:
-        - "5682:5672"
-        - "15682:15672"
-rabbit3:
-    image: rabbitcluster
-    hostname: rabbit3
-    links:
-        - rabbit1
-        - rabbit2
-    environment:
-        - CLUSTERED=true
-        - CLUSTER_WITH=rabbit1
-    ports:
-        - "5683:5672"
-        - "15683:15672"
+version: '2'
+services:
+    rabbit1:
+        image: rabbitcluster
+        hostname: rabbit1
+        ports:
+            - "5681:5672"
+            - "15681:15672"
+    rabbit2:
+        image: rabbitcluster
+        hostname: rabbit2
+        links:
+            - rabbit1
+        environment:
+            - CLUSTERED=true
+            - CLUSTER_WITH=rabbit1
+            - RAM_NODE=true
+        ports:
+            - "5682:5672"
+            - "15682:15672"
+    rabbit3:
+        image: rabbitcluster
+        hostname: rabbit3
+        links:
+            - rabbit1
+            - rabbit2
+        environment:
+            - CLUSTERED=true
+            - CLUSTER_WITH=rabbit1
+        ports:
+            - "5683:5672"
+            - "15683:15672"
+    haproxy:
+        image: myhaproxy
+        depends_on:
+            - rabbit1
+            - rabbit2
+            - rabbit3
+        links:
+            - rabbit1
+            - rabbit2
+            - rabbit3
+        ports:
+            - "8100:8100"
+            - "5670:5670"
